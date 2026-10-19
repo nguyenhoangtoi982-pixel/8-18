@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng tin lớp mình</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #1877f2;
+    }
+
+    .post, .create-post {
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px #00000015;
+    }
+
+    input, textarea, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      font-size: 15px;
+    }
+
+    textarea {
+      height: 90px;
+      resize: vertical;
+    }
+
+    button {
+      background: #1877f2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .post p {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .post img, #preview {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .time {
+      color: #65676b;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    #status {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Bảng tin lớp mình</h1>
+
+    <div class="create-post">
+      <h3>Đăng bài mới</h3>
+
+      <input id="name" placeholder="Tên của bạn">
+
+      <textarea id="content"
+        placeholder="Bạn muốn chia sẻ điều gì?"></textarea>
+
+      <input type="file" id="image" accept="image/jpeg,image/png,image/gif,image/webp"
+        onchange="xemAnh()">
+
+      <img id="preview" style="display:none">
+
+      <button id="postButton" onclick="dangBai()">Đăng bài</button>
+      <div id="status"></div>
+    </div>
+
+    <div id="posts"></div>
+  </div>
+
+  <script>
+    function xemAnh() {
+      let file = document.getElementById("image").files[0];
+      let preview = document.getElementById("preview");
+
+      if (preview.dataset.url) {
+        URL.revokeObjectURL(preview.dataset.url);
+        delete preview.dataset.url;
+      }
+
+      if (!file) {
+        preview.removeAttribute("src");
+        preview.style.display = "none";
+        return;
+      }
+
+      let loaiHopLe = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+      if (!loaiHopLe.includes(file.type)) {
+        alert("Chỉ chọn ảnh JPG, PNG, GIF hoặc WEBP nhé!");
+        document.getElementById("image").value = "";
+        preview.style.display = "none";
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Ảnh tối đa 5 MB nhé!");
+        document.getElementById("image").value = "";
+        preview.style.display = "none";
+        return;
+      }
+
+      preview.dataset.url = URL.createObjectURL(file);
+      preview.src = preview.dataset.url;
+      preview.style.display = "block";
+    }
+
+    function hienThiBai(bai) {
+      let khung = document.createElement("div");
+      khung.className = "post";
+
+      let ten = document.createElement("b");
+      ten.textContent = bai.name;
+
+      let noiDung = document.createElement("p");
+      noiDung.textContent = bai.content;
+
+      khung.appendChild(ten);
+      khung.appendChild(noiDung);
+
+      if (bai.image) {
+        let anh = document.createElement("img");
+        anh.src = bai.image;
+        anh.alt = "Ảnh đính kèm";
+        anh.loading = "lazy";
+        khung.appendChild(anh);
+      }
+
+      if (bai.time) {
+        let thoiGian = document.createElement("div");
+        thoiGian.className = "time";
+        thoiGian.textContent = new Date(bai.time).toLocaleString("vi-VN");
+        khung.appendChild(thoiGian);
+      }
+
+      document.getElementById("posts").appendChild(khung);
+    }
+
+    async function taiBai() {
+      let posts = document.getElementById("posts");
+      posts.replaceChildren();
+
+      try {
+        let response = await fetch("/api/posts");
+
+        if (!response.ok) {
+          throw new Error("Không đọc được danh sách bài viết.");
+        }
+
+        let danhSach = await response.json();
+
+        danhSach.forEach(hienThiBai);
+
+        if (danhSach.length === 0) {
+          posts.textContent = "Chưa có bài viết nào.";
+        }
+      } catch (loi) {
+        posts.textContent = "Không tải được bài viết. Hãy kiểm tra server.";
+      }
+    }
+
+    async function dangBai() {
+      let ten = document.getElementById("name").value.trim();
+      let noiDung = document.getElementById("content").value.trim();
+      let fileAnh = document.getElementById("image").files[0];
+      let status = document.getElementById("status");
+      let button = document.getElementById("postButton");
+
+      if (!ten || !noiDung) {
+        alert("Nhập tên và nội dung bài viết đã nhé!");
+        return;
+      }
+
+      if (fileAnh && fileAnh.size > 5 * 1024 * 1024) {
+        alert("Ảnh tối đa 5 MB nhé!");
+        return;
+      }
+
+      button.disabled = true;
+      status.textContent = "Đang đăng bài...";
+
+      try {
+        let imageData = "";
+
+        if (fileAnh) {
+          let loaiHopLe = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+
+          if (!loaiHopLe.includes(fileAnh.type)) {
+            throw new Error("Định dạng ảnh không được hỗ trợ.");
+          }
+
+          imageData = await new Promise((resolve, reject) => {
+            let reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(new Error("Không đọc được ảnh."));
+            reader.readAsDataURL(fileAnh);
+          });
+        }
+
+        let response = await fetch("/api/posts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: ten,
+            content: noiDung,
+            imageData: imageData
+          })
+        });
+
+        let result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || "Đăng bài thất bại.");
+        }
+
+        document.getElementById("name").value = "";
+        document.getElementById("content").value = "";
+        document.getElementById("image").value = "";
+
+        let preview = document.getElementById("preview");
+
+        if (preview.dataset.url) {
+          URL.revokeObjectURL(preview.dataset.url);
+          delete preview.dataset.url;
+        }
+
+        preview.removeAttribute("src");
+        preview.style.display = "none";
+
+        status.textContent = "Đăng bài thành công!";
+        await taiBai();
+      } catch (loi) {
+        status.textContent = "Lỗi: " + loi.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    taiBai();
+  </script>
+</body>
+</html>

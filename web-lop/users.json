@@ -1,0 +1,59 @@
+[
+  {
+    "id": "admin",
+    "username": "admin",
+    "passwordHash": "$2b$10$q8M2XtK2QQaYkr6xWJMyoujsKTjwvfhZKNpf4lD7d6t5i4Qytnmoy",
+    "role": "admin",
+    "status": "approved"
+  },
+  {
+    "id": "e9d37c52-7840-41a4-a822-f9ec172b8864",
+    "username": "tester",
+    "displayName": "tester",
+    "passwordHash": "$2b$10$Q2ih.n7DZf5svl0ipspE5.AvMplYrn5norxvmfAtLPGhDsdERUIeO",
+    "role": "user",
+    "status": "approved",
+    "createdAt": "2026-10-17T14:53:47.819Z",
+    "reviewedAt": "2026-10-17T14:54:00.556Z"
+  },
+  {
+    "id": "48675da3-fbdc-42e9-a219-ed725e7b4483",
+    "username": "123",
+    "displayName": "s",
+    "passwordHash": "$2b$10$tZTIc.WskSgQNDyK7CHFc./MqlFxilKmM5b0Pzy2F41HzOgdYc.te",
+    "role": "user",
+    "status": "rejected",
+    "createdAt": "2026-10-17T14:55:02.252Z",
+    "reviewedAt": "2026-10-17T14:57:34.725Z"
+  },
+  {
+    "id": "0702393c-c33b-4178-80a8-a7cfd47bfec0",
+    "username": "qqq",
+    "displayName": "tester2",
+    "passwordHash": "$2b$10$2pE30npZk0ysgJsooG2Fw.KPvls7MOEU.nUl649vqLbA8yFsSqMUy",
+    "role": "user",
+    "status": "rejected",
+    "createdAt": "2026-10-17T14:55:30.106Z",
+    "reviewedAt": "2026-10-17T14:57:36.853Z"
+  },
+  {
+    "id": "68cc4349-a840-4a22-a05f-78127491a33b",
+    "username": "huong",
+    "displayName": "Mẹ Hương",
+    "passwordHash": "$2b$10$ETiGdV5Ho2nzdcRLCWRHI.VtZR5YrQQ0p0kcR39MDjynezDf.sc7S",
+    "role": "user",
+    "status": "approved",
+    "createdAt": "2026-10-18T05:52:20.879Z",
+    "reviewedAt": "2026-10-18T05:52:48.550Z"
+  },
+  {
+    "id": "4231a892-83e3-4268-8ca8-90d911b2e7e3",
+    "username": "hoa",
+    "displayName": "cô hòa",
+    "passwordHash": "$2b$10$QcEIKvMk6zMt863RW0GAaO0o84AxqM9hfNn1UI2EWX1jRJv7/3hPq",
+    "role": "user",
+    "status": "approved",
+    "createdAt": "2026-10-19T14:17:47.384Z",
+    "reviewedAt": "2026-10-19T14:18:01.595Z"
+  }
+]

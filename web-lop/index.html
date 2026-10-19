@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bảng tin lớp mình</title>
+
+   
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #1c1e21;
+    }
+
+    .container { max-width: 620px; margin: auto; }
+
+    h1 { text-align: center; color: #1877f2; }
+    h2, h3 { margin-top: 0; }
+
+    .box, .post {
+      background: white;
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px #00000012;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 11px;
+      margin-top: 9px;
+      font-size: 15px;
+      border-radius: 6px;
+    }
+
+    input, textarea { border: 1px solid #ccd0d5; }
+    textarea { height: 100px; resize: vertical; }
+
+    button {
+      border: none;
+      background: #1877f2;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:disabled { opacity: 0.6; cursor: wait; }
+
+    button.secondary { background: #e4e6eb; color: #1c1e21; }
+    button.danger { background: #d93025; }
+
+    button.small { width: auto; padding: 9px 14px; }
+    .hidden { display: none !important; }
+
+    .tabs { display: flex; gap: 8px; }
+    .tabs button { flex: 1; margin-top: 0; }
+    .tabs button.active { background: #0d5bc4; }
+
+    .page-tabs {
+      margin: 0 0 16px;
+      padding: 5px;
+      background: #e4e6eb;
+      border-radius: 10px;
+      position: sticky;
+      top: 8px;
+      z-index: 5;
+    }
+
+    .page-tabs button { border-radius: 7px; }
+
+    .status {
+      margin-top: 12px;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .muted, .time { color: #65676b; font-size: 13px; }
+
+    .post p { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+    .post img, #preview {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .userbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .userbar button { margin-top: 0; }
+
+    .request {
+      border: 1px solid #e4e6eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .request-actions { display: flex; gap: 8px; }
+    .request-actions button { flex: 1; }
+
+    .post-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .post-actions button { margin-top: 0; }
+
+    .timetable-wrap { overflow-x: auto; margin-top: 12px; }
+
+    .timetable {
+      width: 100%;
+      min-width: 560px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .timetable th, .timetable td {
+      border: 1px solid #d8dce2;
+      padding: 6px;
+      text-align: center;
+    }
+
+    .timetable th { background: #eaf2ff; }
+
+    .timetable td input {
+      width: 100%;
+      min-width: 65px;
+      margin: 0;
+      padding: 7px 4px;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .timetable .period {
+      font-weight: bold;
+      background: #f7f8fa;
+      white-space: nowrap;
+    }
+
+    .timetable-buttons { display: flex; gap: 8px; margin-top: 10px; }
+    .timetable-buttons button { flex: 1; }
+
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .box, .post { padding: 14px; }
+      h1 { font-size: 25px; }
+    }
+	 /* Khu vuc binh luan */
+    .comments {
+      border-top: 1px solid #e4e6eb;
+      margin-top: 14px;
+      padding-top: 12px;
+    }
+
+    .comments h3 {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .comment {
+      margin-top: 12px;
+      min-width: 0;
+    }
+
+    .comment-bubble {
+      background: #f0f2f5;
+      border-radius: 12px;
+      padding: 10px 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .comment-name {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .comment-content {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    .comment-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 5px 0 0 10px;
+      font-size: 12px;
+      color: #65676b;
+    }
+
+    .comment-action {
+      width: auto;
+      margin: 0;
+      padding: 2px 0;
+      background: transparent;
+      color: #65676b;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .comment-action:hover {
+      text-decoration: underline;
+    }
+
+    .comment-replies {
+      margin-left: 18px;
+      padding-left: 12px;
+      border-left: 2px solid #e4e6eb;
+    }
+
+    .comment-form {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .comment-form textarea {
+      flex: 1;
+      min-width: 0;
+      height: 42px;
+      min-height: 42px;
+      max-height: 120px;
+      resize: vertical;
+      margin: 0;
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    .comment-form button {
+      width: auto;
+      flex-shrink: 0;
+      margin: 0;
+      padding: 10px 13px;
+    }
+
+    .reply-form {
+      margin: 8px 0 8px 18px;
+    }
+
+    .comment-status {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #65676b;
+      overflow-wrap: anywhere;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Bảng tin lớp mình</h1>
+    <p class="muted" style="text-align:center">
+      Kết nối · Chia sẻ · Học tập
+    </p>
+
+    <!-- Dang nhap va dang ky -->
+    <section id="auth" class="box">
+      <div class="tabs">
+        <button id="loginTab" class="active" type="button"
+          onclick="doiTab('login')">Đăng nhập</button>
+        <button id="registerTab" class="secondary" type="button"
+          onclick="doiTab('register')">Đăng ký</button>
+      </div>
+
+      <form id="loginForm">
+        <h3 style="margin-top:18px">Đăng nhập</h3>
+        <input id="loginUsername" placeholder="Tên đăng nhập"
+          autocomplete="username" required>
+        <input id="loginPassword" type="password"
+          placeholder="Mật khẩu" autocomplete="current-password" required>
+        <button type="submit">Đăng nhập</button>
+      </form>
+
+      <form id="registerForm" class="hidden">
+        <h3 style="margin-top:18px">Tạo tài khoản</h3>
+        <input id="registerName" placeholder="Tên hiển thị"
+          maxlength="40" required>
+        <input id="registerUsername" placeholder="Tên đăng nhập (3-20 ký tự)"
+          minlength="3" maxlength="20"
+          pattern="[a-zA-Z0-9_]{3,20}" autocomplete="username" required>
+        <input id="registerPassword" type="password"
+          placeholder="Mật khẩu (ít nhất 10 ký tự)"
+          minlength="10" maxlength="128"
+          autocomplete="new-password" required>
+        <button type="submit">Gửi yêu cầu đăng ký</button>
+        <p class="muted">
+          Tài khoản chỉ sử dụng được sau khi quản trị viên duyệt.
+        </p>
+      </form>
+
+      <div id="authStatus" class="status" role="status"></div>
+    </section>
+
+    <!-- Khu vuc sau khi dang nhap -->
+    <main id="app" class="hidden">
+      <section class="box">
+        <div class="userbar">
+          <div>
+            <strong id="welcome"></strong>
+            <div id="roleLabel" class="muted"></div>
+          </div>
+          <button class="secondary small" type="button"
+            onclick="dangXuat()">Đăng xuất</button>
+        </div>
+      </section>
+
+      <!-- Khu vuc quan tri rieng, khong thuoc tab -->
+      <section id="adminPanel" class="box hidden">
+        <h2>Quản lý đăng ký</h2>
+        <p class="muted">
+          Xác minh người đăng ký trực tiếp trên lớp trước khi duyệt.
+        </p>
+        <button type="button" class="secondary"
+          onclick="taiYeuCau()">Làm mới danh sách</button>
+        <div id="pendingList"></div>
+        <div id="adminStatus" class="status" role="status"></div>
+      </section>
+
+      <!-- Menu chuyen giua hai khu vuc -->
+      <div class="tabs page-tabs">
+        <button id="newsTab" class="active" type="button"
+          onclick="doiKhuVuc('news')">Bản tin</button>
+        <button id="timetableTab" class="secondary" type="button"
+          onclick="doiKhuVuc('timetable')">Thời khóa biểu</button>
+      </div>
+
+      <!-- Tab thoi khoa bieu -->
+      <section class="box hidden" id="timetablePanel">
+        <h2>Thời khóa biểu</h2>
+        <p class="muted">Thời khóa biểu của lớp mình.</p>
+        <div id="timetableContent">Đang tải thời khóa biểu...</div>
+        <div id="timetableStatus" class="status" role="status"></div>
+      </section>
+
+      <!-- Tab ban tin: gom ca dang bai va danh sach bai viet -->
+      <div id="newsPanel">
+        <section class="box">
+          <h2>Đăng bài mới</h2>
+          <form id="postForm">
+            <textarea id="content"
+              placeholder="Bạn muốn chia sẻ điều gì?"
+              maxlength="10000" required></textarea>
+
+            <label for="image">Ảnh đính kèm (tối đa 5 MB)</label>
+            <input type="file" id="image"
+              accept="image/jpeg,image/png,image/gif,image/webp">
+
+            <img id="preview" class="hidden" alt="Xem trước ảnh">
+
+            <button id="postButton" type="submit">Đăng bài</button>
+            <div id="postStatus" class="status" role="status"></div>
+          </form>
+        </section>
+
+        <section>
+          <h2>Bảng tin</h2>
+          <div id="posts">Đang tải bài viết...</div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let previewUrl = '';
+    let timetableData = null;
+    let dangSuaThoiKhoaBieu = false;
+
+    async function api(url, options = {}) {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(options.headers || {})
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Có lỗi xảy ra.');
+      }
+
+      return data;
+    }
+
+    function doiTab(tab) {
+      const login = tab === 'login';
+
+      document.getElementById('loginForm').classList.toggle('hidden', !login);
+      document.getElementById('registerForm').classList.toggle('hidden', login);
+
+      document.getElementById('loginTab').classList.toggle('active', login);
+      document.getElementById('loginTab').classList.toggle('secondary', !login);
+
+      document.getElementById('registerTab').classList.toggle('active', !login);
+      document.getElementById('registerTab').classList.toggle('secondary', login);
+
+      document.getElementById('authStatus').textContent = '';
+    }
+
+    function doiKhuVuc(tab) {
+      const hienBanTin = tab === 'news';
+
+      document.getElementById('newsPanel').classList.toggle(
+        'hidden', !hienBanTin
+      );
+      document.getElementById('timetablePanel').classList.toggle(
+        'hidden', hienBanTin
+      );
+
+      document.getElementById('newsTab').classList.toggle('active', hienBanTin);
+      document.getElementById('newsTab').classList.toggle('secondary', !hienBanTin);
+
+      document.getElementById('timetableTab').classList.toggle('active', !hienBanTin);
+      document.getElementById('timetableTab').classList.toggle('secondary', hienBanTin);
+    }
+
+    function hienTrangDangNhap(message = '') {
+      currentUser = null;
+      document.getElementById('auth').classList.remove('hidden');
+      document.getElementById('app').classList.add('hidden');
+      document.getElementById('authStatus').textContent = message;
+    }
+
+    function hienTrangChinh(user) {
+      currentUser = user;
+      document.getElementById('auth').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+
+      document.getElementById('welcome').textContent =
+        'Xin chào, ' + user.displayName;
+
+      document.getElementById('roleLabel').textContent =
+        user.role === 'admin' ? 'Quản trị viên' : 'Thành viên';
+
+      document.getElementById('adminPanel').classList.toggle(
+        'hidden', user.role !== 'admin'
+      );
+
+      doiKhuVuc('news');
+      taiBai();
+      taiThoiKhoaBieu();
+
+      if (user.role === 'admin') {
+        taiYeuCau();
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit',
+      async function(event) {
+        event.preventDefault();
+        const status = document.getElementById('authStatus');
+        status.textContent = 'Đang đăng nhập...';
+
+        try {
+          const data = await api('/api/login', {
+            method: 'POST',
+            body: JSON.stringify({
+              username: document.getElementById('loginUsername').value,
+              password: document.getElementById('loginPassword').value
+            })
+          });
+
+          document.getElementById('loginPassword').value = '';
+          hienTrangChinh(data.user);
+        } catch (error) {
+          status.textContent = error.message;
+        }
+      }
+    );
+
+    document.getElementById('registerForm').addEventListener('submit',
+      async function(event) {
+        event.preventDefault();
+        const status = document.getElementById('authStatus');
+        status.textContent = 'Đang gửi yêu cầu...';
+
+        try {
+          const data = await api('/api/register', {
+            method: 'POST',
+            body: JSON.stringify({
+              displayName: document.getElementById('registerName').value,
+              username: document.getElementById('registerUsername').value,
+              password: document.getElementById('registerPassword').value
+            })
+          });
+
+          document.getElementById('registerPassword').value = '';
+          document.getElementById('registerForm').reset();
+          doiTab('login');
+          status.textContent = data.message || 'Đã gửi yêu cầu đăng ký.';
+        } catch (error) {
+          status.textContent = error.message;
+        }
+      }
+    );
+
+    async function dangXuat() {
+      try {
+        await api('/api/logout', { method: 'POST' });
+      } catch (error) {
+        // Van tro ve man hinh dang nhap neu phien het han
+      }
+
+      hienTrangDangNhap('Đã đăng xuất.');
+      doiTab('login');
+    }
+
+    async function taiYeuCau() {
+      const list = document.getElementById('pendingList');
+      const status = document.getElementById('adminStatus');
+      list.textContent = 'Đang tải danh sách...';
+      status.textContent = '';
+
+      try {
+        const users = await api('/api/admin/pending');
+        list.replaceChildren();
+
+        if (users.length === 0) {
+          list.textContent = 'Không có yêu cầu đăng ký nào đang chờ.';
+          return;
+        }
+
+        users.forEach(user => {
+          const item = document.createElement('div');
+          item.className = 'request';
+
+          const name = document.createElement('strong');
+          name.textContent = user.displayName;
+
+          const username = document.createElement('p');
+          username.textContent = 'Tên đăng nhập: ' + user.username;
+
+          const actions = document.createElement('div');
+          actions.className = 'request-actions';
+
+          const approve = document.createElement('button');
+          approve.textContent = 'Duyệt';
+          approve.addEventListener('click', () =>
+            xuLyYeuCau(user.username, 'approve')
+          );
+
+          const reject = document.createElement('button');
+          reject.textContent = 'Từ chối';
+          reject.className = 'danger';
+          reject.addEventListener('click', () =>
+            xuLyYeuCau(user.username, 'reject')
+          );
+
+          actions.append(approve, reject);
+          item.append(name, username, actions);
+          list.appendChild(item);
+        });
+      } catch (error) {
+        list.textContent = error.message;
+      }
+    }
+
+    async function xuLyYeuCau(username, action) {
+      const text = action === 'approve' ? 'duyệt' : 'từ chối';
+
+      if (!confirm('Ông chắc chắn muốn ' + text +
+          ' tài khoản ' + username + '?')) {
+        return;
+      }
+
+      const status = document.getElementById('adminStatus');
+
+      try {
+        const data = await api(
+          '/api/admin/users/' + encodeURIComponent(username) + '/' + action,
+          { method: 'POST', body: '{}' }
+        );
+
+        status.textContent = data.message;
+        await taiYeuCau();
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    }
+
+    document.getElementById('image').addEventListener('change', function() {
+      const file = this.files[0];
+      const preview = document.getElementById('preview');
+
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        previewUrl = '';
+      }
+
+      preview.classList.add('hidden');
+      preview.removeAttribute('src');
+
+      if (!file) return;
+
+      const types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+      if (!types.includes(file.type)) {
+        alert('Chỉ hỗ trợ JPG, PNG, GIF hoặc WEBP.');
+        this.value = '';
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Ảnh tối đa 5 MB.');
+        this.value = '';
+        return;
+      }
+
+      previewUrl = URL.createObjectURL(file);
+      preview.src = previewUrl;
+      preview.classList.remove('hidden');
+    });
+
+    document.getElementById('postForm').addEventListener('submit',
+      async function(event) {
+        event.preventDefault();
+
+        const button = document.getElementById('postButton');
+        const status = document.getElementById('postStatus');
+        const content = document.getElementById('content').value.trim();
+        const file = document.getElementById('image').files[0];
+
+        if (!content) {
+          status.textContent = 'Hãy nhập nội dung bài viết.';
+          return;
+        }
+
+        button.disabled = true;
+        status.textContent = 'Đang đăng bài...';
+
+        try {
+          let imageData = '';
+
+          if (file) {
+            imageData = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onload = () => resolve(reader.result);
+              reader.onerror = () => reject(new Error('Không đọc được ảnh.'));
+              reader.readAsDataURL(file);
+            });
+          }
+
+          await api('/api/posts', {
+            method: 'POST',
+            body: JSON.stringify({ content: content, imageData: imageData })
+          });
+
+          document.getElementById('postForm').reset();
+
+          if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            previewUrl = '';
+          }
+
+          document.getElementById('preview').classList.add('hidden');
+          document.getElementById('preview').removeAttribute('src');
+
+          status.textContent = 'Đăng bài thành công!';
+          await taiBai();
+        } catch (error) {
+          status.textContent = error.message;
+        } finally {
+          button.disabled = false;
+        }
+      }
+    );
+
+    function hienThiBai(bai) {
+      const khung = document.createElement('article');
+      khung.className = 'post';
+
+      const ten = document.createElement('strong');
+      ten.textContent = bai.name;
+
+      const noiDung = document.createElement('p');
+      noiDung.textContent = bai.content;
+      khung.append(ten, noiDung);
+
+      if (bai.image) {
+        const anh = document.createElement('img');
+        anh.src = bai.image;
+        anh.alt = 'Ảnh đính kèm';
+        anh.loading = 'lazy';
+        khung.appendChild(anh);
+      }
+
+      if (bai.time) {
+        const time = document.createElement('div');
+        time.className = 'time';
+        time.textContent = new Date(bai.time).toLocaleString('vi-VN');
+        khung.appendChild(time);
+      }
+
+      if (currentUser && currentUser.role === 'admin') {
+        const actions = document.createElement('div');
+        actions.className = 'post-actions';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'danger small';
+        deleteButton.textContent = 'Xóa bài';
+        deleteButton.addEventListener('click', () => xoaBai(bai.id));
+
+        actions.appendChild(deleteButton);
+        khung.appendChild(actions);
+      }
+ khung.appendChild(taoKhuVucBinhLuan(bai.id));
+      return khung;
+    }
+
+    async function xoaBai(id) {
+      if (!confirm('Ông có chắc chắn muốn xóa bài viết này không?')) return;
+
+      try {
+        const data = await api(
+          '/api/posts/' + encodeURIComponent(id),
+          { method: 'DELETE' }
+        );
+
+        alert(data.message);
+        await taiBai();
+      } catch (error) {
+        alert('Không xóa được bài viết: ' + error.message);
+      }
+    }
+
+    async function taiBai() {
+      const posts = document.getElementById('posts');
+      posts.textContent = 'Đang tải bài viết...';
+
+      try {
+        const danhSach = await api('/api/posts');
+        posts.replaceChildren();
+
+        if (danhSach.length === 0) {
+          posts.textContent = 'Chưa có bài viết nào.';
+          return;
+        }
+
+        danhSach.forEach(bai => posts.appendChild(hienThiBai(bai)));
+      } catch (error) {
+        posts.textContent = 'Không tải được bài viết: ' + error.message;
+      }
+    }
+
+    function taoKhuVucBinhLuan(postId) {
+      const section = document.createElement('section');
+      section.className = 'comments';
+
+      const heading = document.createElement('h3');
+      heading.textContent = 'Phản hồi';
+
+      const list = document.createElement('div');
+      list.className = 'comments-list';
+      list.textContent = 'Đang tải bình luận...';
+
+      const form = document.createElement('form');
+      form.className = 'comment-form';
+
+      const input = document.createElement('textarea');
+      input.placeholder = 'Viết phản hồi...';
+      input.maxLength = 2000;
+      input.required = true;
+      input.setAttribute('aria-label', 'Viết bình luận');
+
+      const send = document.createElement('button');
+      send.type = 'submit';
+      send.textContent = 'Gửi';
+
+      const status = document.createElement('div');
+      status.className = 'comment-status';
+      status.setAttribute('role', 'status');
+
+      form.append(input, send);
+      section.append(heading, list, form, status);
+
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+
+        const content = input.value.trim();
+        if (!content) return;
+
+        send.disabled = true;
+        status.textContent = 'Đang gửi...';
+
+        try {
+          await api(
+            '/api/posts/' + encodeURIComponent(postId) + '/comments',
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                content: content,
+                parentId: null
+              })
+            }
+          );
+
+          input.value = '';
+          status.textContent = 'Đã gửi bình luận.';
+          await taiBinhLuan(postId, list);
+        } catch (error) {
+          status.textContent = error.message;
+        } finally {
+          send.disabled = false;
+        }
+      });
+
+      taiBinhLuan(postId, list);
+      return section;
+    }
+
+    async function taiBinhLuan(postId, list) {
+      list.textContent = 'Đang tải bình luận...';
+
+      try {
+        const comments = await api(
+          '/api/posts/' + encodeURIComponent(postId) + '/comments'
+        );
+
+        list.replaceChildren();
+
+        if (comments.length === 0) {
+          list.textContent = 'Chưa có phản hồi nào.';
+          return;
+        }
+
+        const roots = comments.filter(comment => !comment.parentId);
+
+        roots.forEach(comment => {
+          list.appendChild(
+            taoTheBinhLuan(comment, comments, postId, list)
+          );
+        });
+      } catch (error) {
+        list.textContent = 'Không tải được bình luận: ' + error.message;
+      }
+    }
+
+    function taoTheBinhLuan(comment, allComments, postId, list) {
+      const wrap = document.createElement('div');
+      wrap.className = 'comment';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'comment-bubble';
+
+      const name = document.createElement('div');
+      name.className = 'comment-name';
+      name.textContent = comment.name || comment.username;
+
+      const content = document.createElement('div');
+      content.className = 'comment-content';
+      content.textContent = comment.content;
+
+      bubble.append(name, content);
+
+      const meta = document.createElement('div');
+      meta.className = 'comment-meta';
+
+      const time = document.createElement('span');
+      time.textContent = comment.time
+        ? new Date(comment.time).toLocaleString('vi-VN')
+        : '';
+
+      meta.appendChild(time);
+
+      // Nut tra loi
+      if (currentUser) {
+        const reply = document.createElement('button');
+        reply.type = 'button';
+        reply.className = 'comment-action';
+        reply.textContent = 'Trả lời';
+        meta.appendChild(reply);
+
+        reply.addEventListener('click', () => {
+          const existing = wrap.querySelector(':scope > .reply-form');
+
+          if (existing) {
+            existing.remove();
+            return;
+          }
+
+          const form = document.createElement('form');
+          form.className = 'comment-form reply-form';
+
+          const input = document.createElement('textarea');
+          input.placeholder =
+            'Trả lời ' + (comment.name || comment.username) + '...';
+          input.maxLength = 2000;
+          input.required = true;
+
+          const send = document.createElement('button');
+          send.type = 'submit';
+          send.textContent = 'Gửi';
+
+          const status = document.createElement('div');
+          status.className = 'comment-status';
+          status.setAttribute('role', 'status');
+
+          form.append(input, send, status);
+
+          form.addEventListener('submit', async event => {
+            event.preventDefault();
+
+            const text = input.value.trim();
+            if (!text) return;
+
+            send.disabled = true;
+            status.textContent = 'Đang gửi...';
+
+            try {
+              await api(
+                '/api/posts/' + encodeURIComponent(postId) + '/comments',
+                {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    content: text,
+                    parentId: comment.id
+                  })
+                }
+              );
+
+              await taiBinhLuan(postId, list);
+            } catch (error) {
+              status.textContent = error.message;
+            } finally {
+              send.disabled = false;
+            }
+          });
+
+          wrap.appendChild(form);
+          input.focus();
+        });
+      }
+
+      // Chi chu binh luan hoac admin duoc xoa
+      const coQuyenXoa = currentUser &&
+        (currentUser.role === 'admin' ||
+         currentUser.username === comment.username);
+
+      if (coQuyenXoa) {
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'comment-action';
+        del.textContent = 'Xóa';
+        meta.appendChild(del);
+
+        del.addEventListener('click', async () => {
+          if (!confirm(
+            'Ông có chắc muốn xóa bình luận này và các câu trả lời bên dưới?'
+          )) {
+            return;
+          }
+
+          try {
+            await api(
+              '/api/comments/' + encodeURIComponent(comment.id),
+              { method: 'DELETE' }
+            );
+
+            await taiBinhLuan(postId, list);
+          } catch (error) {
+            alert('Không xóa được bình luận: ' + error.message);
+          }
+        });
+      }
+
+      wrap.append(bubble, meta);
+
+      // Hien thi cac cau tra loi ben duoi binh luan cha
+      const children = allComments.filter(
+        item => item.parentId === comment.id
+      );
+
+      if (children.length > 0) {
+        const replies = document.createElement('div');
+        replies.className = 'comment-replies';
+
+        children.forEach(child => {
+          replies.appendChild(
+            taoTheBinhLuan(child, allComments, postId, list)
+          );
+        });
+
+        wrap.appendChild(replies);
+      }
+
+      return wrap;
+    }
+
+    async function taiThoiKhoaBieu() {
+      const content = document.getElementById('timetableContent');
+      const status = document.getElementById('timetableStatus');
+
+      content.textContent = 'Đang tải thời khóa biểu...';
+      status.textContent = '';
+
+      try {
+        timetableData = await api('/api/timetable');
+        dangSuaThoiKhoaBieu = false;
+        hienThiThoiKhoaBieu();
+      } catch (error) {
+        content.textContent = 'Không tải được thời khóa biểu: ' + error.message;
+      }
+    }
+
+    function hienThiThoiKhoaBieu() {
+      const content = document.getElementById('timetableContent');
+      content.replaceChildren();
+
+      if (!timetableData || !Array.isArray(timetableData.days)) {
+        content.textContent = 'Dữ liệu thời khóa biểu không hợp lệ.';
+        return;
+      }
+
+      const days = timetableData.days;
+      const periods = timetableData.periods;
+      const schedule = timetableData.schedule || {};
+      const isAdmin = currentUser && currentUser.role === 'admin';
+
+      const wrap = document.createElement('div');
+      wrap.className = 'timetable-wrap';
+
+      const table = document.createElement('table');
+      table.className = 'timetable';
+
+      const thead = document.createElement('thead');
+      const header = document.createElement('tr');
+
+      const periodHeader = document.createElement('th');
+      periodHeader.textContent = 'Tiết';
+      header.appendChild(periodHeader);
+
+      days.forEach(day => {
+        const th = document.createElement('th');
+        th.textContent = day;
+        header.appendChild(th);
+      });
+
+      thead.appendChild(header);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+
+      for (let p = 0; p < periods; p++) {
+        const row = document.createElement('tr');
+
+        const periodCell = document.createElement('td');
+        periodCell.className = 'period';
+        periodCell.textContent = 'Tiết ' + (p + 1);
+        row.appendChild(periodCell);
+
+        days.forEach((day, d) => {
+          const cell = document.createElement('td');
+          const key = d + '-' + p;
+          const subject = schedule[key] || '';
+
+          if (dangSuaThoiKhoaBieu && isAdmin) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.maxLength = 50;
+            input.placeholder = 'Môn học';
+            input.value = subject;
+            input.dataset.key = key;
+            cell.appendChild(input);
+          } else {
+            cell.textContent = subject || '—';
+          }
+
+          row.appendChild(cell);
+        });
+
+        tbody.appendChild(row);
+      }
+
+      table.appendChild(tbody);
+      wrap.appendChild(table);
+      content.appendChild(wrap);
+
+      if (isAdmin) {
+        const buttons = document.createElement('div');
+        buttons.className = 'timetable-buttons';
+
+        if (dangSuaThoiKhoaBieu) {
+          const save = document.createElement('button');
+          save.type = 'button';
+          save.textContent = 'Lưu thời khóa biểu';
+          save.addEventListener('click', luuThoiKhoaBieu);
+          buttons.appendChild(save);
+
+          const cancel = document.createElement('button');
+          cancel.type = 'button';
+          cancel.className = 'secondary';
+          cancel.textContent = 'Hủy';
+          cancel.addEventListener('click', () => {
+            dangSuaThoiKhoaBieu = false;
+            hienThiThoiKhoaBieu();
+            document.getElementById('timetableStatus').textContent = '';
+          });
+          buttons.appendChild(cancel);
+        } else {
+          const edit = document.createElement('button');
+          edit.type = 'button';
+          edit.textContent = 'Sửa thời khóa biểu';
+          edit.addEventListener('click', () => {
+            dangSuaThoiKhoaBieu = true;
+            hienThiThoiKhoaBieu();
+          });
+          buttons.appendChild(edit);
+        }
+
+        content.appendChild(buttons);
+      }
+    }
+
+    async function luuThoiKhoaBieu() {
+      const status = document.getElementById('timetableStatus');
+      const inputs = document.querySelectorAll('#timetableContent input');
+      const schedule = { ...(timetableData.schedule || {}) };
+
+      inputs.forEach(input => {
+        const value = input.value.trim();
+        if (value) {
+          schedule[input.dataset.key] = value;
+        } else {
+          delete schedule[input.dataset.key];
+        }
+      });
+
+      status.textContent = 'Đang lưu...';
+
+      try {
+        const data = await api('/api/timetable', {
+          method: 'PUT',
+          body: JSON.stringify({
+            days: timetableData.days,
+            periods: timetableData.periods,
+            schedule: schedule
+          })
+        });
+
+        timetableData.schedule = schedule;
+        dangSuaThoiKhoaBieu = false;
+        hienThiThoiKhoaBieu();
+        status.textContent = data.message || 'Đã lưu thời khóa biểu.';
+      } catch (error) {
+        status.textContent = 'Không lưu được: ' + error.message;
+      }
+    }
+
+    async function khoiDong() {
+      try {
+        const data = await api('/api/me');
+
+        if (data.loggedIn) {
+          hienTrangChinh(data.user);
+        } else {
+          hienTrangDangNhap();
+        }
+      } catch (error) {
+        hienTrangDangNhap('Không kết nối được server. Hãy kiểm tra CMD.');
+      }
+    }
+
+    khoiDong();
+  </script>
+</body>
+</html>
+
